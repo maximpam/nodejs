@@ -38,6 +38,9 @@ const server = http.createServer(async function (req, res) {
                 case '/user':
                     await saveUser(req, res);
                     break;
+                case '/hello':
+                    await sayHello(req, res);
+                    break;
                 default:
                     homepage(req, res);
                     break;
@@ -66,6 +69,27 @@ function test(req, res){
     res.writeHead(200, {'Content-Type':'text/html'});
     res.end('about');
 }
+
+function sayHello(req, res){
+    let data = '';
+    req.on('data', chunk => {
+        console.log(`Data chunk available: ${chunk}`);
+        data += chunk;
+    });
+    req.on('end', async () => {
+        if (JSON.parse(data).age && JSON.parse(data).age >= 18) {
+            let response = "Hello, "+JSON.parse(data).name+" "+JSON.parse(data).surname;
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end(response);
+        } else {
+            res.writeHead(403, {'Content-Type': 'text/html'});
+            res.end('You should be 18+');
+        }
+    });
+};
+
+
+
 async function saveUser(req, res){
     let data = '';
     req.on('data', chunk => {
